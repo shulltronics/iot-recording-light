@@ -13,9 +13,9 @@ This code is only intended to work with Apple's Logic Pro X running on MacOS ver
 - recording-light.py
   - This is the Python script to present a midi interface to the MacOS system, and convert/send incoming midi data to the light over TCP.
   - Move this file to the user's home directory, owned by current user and group and executable by the owner.
-- com.recording.light.plist
+- com.recording.light.translate.plist
   - This is the plist file to launch recording-light.py as background process when the user logs in.
   - Move this file to `~/Library/LaunchAgents/` directory, owned by the current user and group, and with permissions 644.
-  - Run `launchctl load ~/Library/LaunchAgents/com.recording.light.plit` to begin the script. It should now launch automatically upon login.
+  - Run `launchctl load ~/Library/LaunchAgents/com.recording.light.translate.plist` to begin the script. It should now launch automatically upon login.
   - Output and error files should be created in the home directory.
 
