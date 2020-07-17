@@ -1,15 +1,15 @@
-#iot-recording-light
-#####A project for Heartwood Soundstage
-#####Written by Carsten Thue-Bludworth, aka Shulltronics
-#####July 2020
+# iot-recording-light
+##### A project for Heartwood Soundstage
+##### Written by Carsten Thue-Bludworth, aka Shulltronics
+##### July 2020
 
 This repository contains scripts and code to interface a WiFi-connected recording light to the Recording Light control surface in Logic Pro X.
 
-###Scope
+### Scope
 
 This code is only intended to work with Apple's Logic Pro X running on MacOS version x.x.x, and has only been tested on this platform.
 
-###Files
+### Files
 - recording-light.py
   - This is the Python script to present a midi interface to the MacOS system, and convert/send incoming midi data to the light over TCP.
   - Move this file to the user's home directory, owned by current user and group and executable by the owner.
