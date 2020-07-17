@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+            <string>com.recording.light.translate</string>
+        <key>ProgramArguments</key>
+            <array>
+                <string>/usr/local/bin/python3.8</string>
+                <string>/Users/macuser/recording-light.py</string>
+            </array>
+        <key>RunAtLoad</key>
+        <true/>
+        <key>KeepAlive</key>
+        <true/>
+        <key>StandardErrorPath</key>
+        <string>/Users/macuser/rec-light-err.txt</string>
+        <key>StandardOutPath</key>
+        <string>/Users/macuser/rec-light-out.txt</string>
+    </dict>
+</plist>
