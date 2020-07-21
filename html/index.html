@@ -1,0 +1,52 @@
+<html> 
+    <head> 
+        <title>Recording Light</title> 
+    </head> 
+    <body style="background-image:linear-gradient(black,#5C0E0E);color:gray;font-family:'courier-new',monospace;"> 	
+        <div style="text-align:center"> 
+            <div style="display:inline-block;padding:10pt 70pt;margin:70pt 0;border:solid 3px #ECF0F1;border-radius:10px"> 
+                <div style="font-size:20pt;padding:10pt 0;">Recording Light Control</div> 
+                <form id="on-style-form" method="post"> 
+                    <p style="margin:10pt;"><u>Light Transition Style</u></p> 
+                    <div> 
+                        <input type="radio" name="on-style" id="1" value="fade-in" {fade-in-check}> 
+                        <label for="fade-in">Fade in</label> 
+                    </div> 
+                    <div> 
+                        <input type="radio" name="on-style" id="0" value="immediate" {immediate-check}> 
+                        <label for="immediate">Immediate</label> 
+                    </div> 
+                    <p style="margin:5pt;"><u>Armed Color</u></p> 
+                    <div> 
+                        <label for="red">Red: </label> 
+                        <input type="range" name="armed-red" id="armed-color" min="0" max="255" step="1" value={arm-red-val}> 
+                    </div> 
+                    <div> 
+                        <label for="green">Green: </label> 
+                        <input type="range" name="armed-green" id="armed-color" min="0" max="255" step="1" value={arm-green-val}> 
+                    </div> 
+                    <div> 
+                        <label for="blue">Blue: </label> 
+                        <input type="range" name="armed-blue" id="armed-color" min="0" max="255" step="1" value={arm-blue-val}> 
+                    </div> 
+                    <p style="margin:5pt;"><u>Recording Color</u></p> 
+                    <div> 
+                        <label for="red">Red: </label> 
+                        <input type="range" name="recording-red" id="armed-color" min="0" max="255" step="1" value={rec-red-val}> 
+                    </div> 
+                    <div> 
+                        <label for="green">Green: </label> 
+                        <input type="range" name="recording-green" id="armed-color" min="0" max="255" step="1" value={rec-green-val}> 
+                    </div> 
+                    <div> 
+                        <label for="blue">Blue: </label> 
+                        <input type="range" name="recording-blue" id="armed-color" min="0" max="255" step="1" value={rec-blue-val}> 
+                    </div> 
+                    <div style="margin:10pt;"> 
+                        <button type="submit">Submit</button> 
+                    </div> 
+                </form> 
+            </div> 
+        </div> 
+    </body> 
+</html> 
