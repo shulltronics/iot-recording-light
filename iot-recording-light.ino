@@ -14,8 +14,6 @@ P(html6) = "> </div> <p style=\"margin:5pt;\"><u>Recording Color</u></p> <div> <
 P(html7) = "> </div> <div> <label for=\"green\">Green: </label> <input type=\"range\" name=\"recording-green\" id=\"armed-color\" min=\"0\" max=\"255\" step=\"1\" value=";
 P(html8) = "> </div> <div> <label for=\"blue\">Blue: </label> <input type=\"range\" name=\"recording-blue\" id=\"armed-color\" min=\"0\" max=\"255\" step=\"1\" value=";
 P(html9) = "> </div> <div style=\"margin:10pt;\"> <button type=\"submit\">Submit</button> </div> </form> </div> </div> </body> </html>";
-//TCPServer server = TCPServer(80);
-//TCPClient client;
 
 #define TRANS_TYPE_EEPROM_ADDR 0
 #define ARMED_COLORS_EEPROM_ADDR 1
@@ -102,6 +100,7 @@ void printHTML()
     webserver.printP(html9);
 }
 
+// Command to run when accessing root of server. Present UI to browser.
 void ctlCmd(WebServer &server, WebServer::ConnectionType type, char *, bool)
 {
     /* this line sends the standard "we're all OK" headers back to the
@@ -183,7 +182,6 @@ int on_thresh  = 750;
 
 long display_timer = micros();
 int display_period = 200;
-
 
 void offCmd(WebServer &server, WebServer::ConnectionType type, char *, bool)
 {
