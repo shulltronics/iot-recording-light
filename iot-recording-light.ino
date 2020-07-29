@@ -171,11 +171,6 @@ void ctlCmd(WebServer &server, WebServer::ConnectionType type, char *, bool)
     
 }
 
-// Timer variables
-long off_timer = millis();
-bool off_timer_stat = false;
-int off_thresh = 2000;
-
 long on_timer = millis();
 bool on_timer_stat = true;
 int on_thresh  = 750;
@@ -186,29 +181,13 @@ int display_period = 200;
 void offCmd(WebServer &server, WebServer::ConnectionType type, char *, bool)
 {
     webserver.httpSuccess();
-    off_timer_stat = true;
-    off_timer = millis();
+    current_state = OFF;
 }
 
 void armCmd(WebServer &server, WebServer::ConnectionType type, char *, bool)
 {
     webserver.httpSuccess();
-    if (current_state == RECORDING)
-    {
-        // only switch if on_thresh milliseconds have ellapsed since
-        // recording began
-        if ((millis() - on_timer) > on_thresh)
-        {
-            current_state = ARMED;
-            off_timer_stat = false;
-        }
-        // otherwise it was the corner case
-    }
-    else
-    {
-        current_state = ARMED;
-        off_timer_stat = false;
-    }
+    current_state = ARMED;
 }
 
 void recCmd(WebServer &server, WebServer::ConnectionType type, char *, bool)
@@ -216,7 +195,6 @@ void recCmd(WebServer &server, WebServer::ConnectionType type, char *, bool)
     webserver.httpSuccess();
     current_state = RECORDING;
     on_timer = millis();
-    off_timer_stat = false;
 }
 
 
