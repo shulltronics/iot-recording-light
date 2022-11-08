@@ -14,6 +14,8 @@ P(html6) = "> </div> <p style=\"margin:5pt;\"><u>Recording Color</u></p> <div> <
 P(html7) = "> </div> <div> <label for=\"green\">Green: </label> <input type=\"range\" name=\"recording-green\" id=\"armed-color\" min=\"0\" max=\"255\" step=\"1\" value=";
 P(html8) = "> </div> <div> <label for=\"blue\">Blue: </label> <input type=\"range\" name=\"recording-blue\" id=\"armed-color\" min=\"0\" max=\"255\" step=\"1\" value=";
 P(html9) = "> </div> <div style=\"margin:10pt;\"> <button type=\"submit\">Submit</button> </div> </form> </div> </div> </body> </html>";
+//TCPServer server = TCPServer(80);
+//TCPClient client;
 
 #define TRANS_TYPE_EEPROM_ADDR 0
 #define ARMED_COLORS_EEPROM_ADDR 1
@@ -100,12 +102,11 @@ void printHTML()
     webserver.printP(html9);
 }
 
-// Command to run when accessing root of server. Present UI to browser.
 void ctlCmd(WebServer &server, WebServer::ConnectionType type, char *, bool)
 {
     /* this line sends the standard "we're all OK" headers back to the
      browser */
-    webserver.httpSuccess();
+    webserver.httpSuccess("text/html; charset=utf-8", "Product: recording-light");
 
     if (type == WebServer::POST)
     {
@@ -171,13 +172,6 @@ void ctlCmd(WebServer &server, WebServer::ConnectionType type, char *, bool)
     
 }
 
-long on_timer = millis();
-bool on_timer_stat = true;
-int on_thresh  = 750;
-
-long display_timer = micros();
-int display_period = 200;
-
 void offCmd(WebServer &server, WebServer::ConnectionType type, char *, bool)
 {
     webserver.httpSuccess();
@@ -194,7 +188,6 @@ void recCmd(WebServer &server, WebServer::ConnectionType type, char *, bool)
 {
     webserver.httpSuccess();
     current_state = RECORDING;
-    on_timer = millis();
 }
 
 
@@ -256,7 +249,8 @@ void setup()
     
 }
 
-
+long display_timer = micros();
+int display_period = 200;
 void loop()
 {
     
@@ -278,15 +272,6 @@ void loop()
         color_vals[0] = recording_color_vals[0];
         color_vals[1] = recording_color_vals[1];
         color_vals[2] = recording_color_vals[2];
-    }
-    
-    if (off_timer_stat)
-    {
-        if ((millis() - off_timer) > off_thresh)
-        {
-            current_state = OFF;
-            off_timer_stat = false;
-        }
     }
     
     char buff[64];
@@ -320,5 +305,5 @@ void loop()
     }
     
     leds_update();
-    
+
 }

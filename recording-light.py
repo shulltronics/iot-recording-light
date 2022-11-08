@@ -9,21 +9,43 @@ from sys import stderr as logger
 from enum import Enum
 
 print("testing")
-LOCAL_HOSTNAME = socket.gethostbyname()
+LOCAL_HOSTNAME = socket.gethostname()
 print("hostname of THIS machine is", LOCAL_HOSTNAME)
 # Get the IP address of this machine, as well as the LAN
 LOCAL_IP = ipa.ip_address(socket.gethostbyname(LOCAL_HOSTNAME))
-LOCAL_NETWORK = ipa.ip_network(socket.gethostbyname(LOCAL_HOSTNAME), scrict=False)
+LOCAL_NETWORK = ipa.ip_network(str(LOCAL_IP) + "/24", strict=False)
 print("ip address of THIS machine is", LOCAL_IP)
 print("LAN network is", LOCAL_NETWORK)
 
-# Scan the LAN for hosts with port 80 open
-def get_hostnames_on_lan():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind("")
+# Scan the LAN for hosts with port 80 open, and then send a GET request to them.
+# Search the returned headers for 'Product: recording-light'.
+# Return all matches in a list of IP addresses (as strings).
+def get_recording_light_ips():
+    device_ip = []
+    for (i, host) in enumerate(LOCAL_NETWORK.hosts()):
+        host = str(host)
+        try:
+            s = socket.create_connection((host, 80), timeout=0.06)
+            print("bound to port 80 on host {}".format(host))
+            s.close()
+            # Seems like this timeout needs to be pretty long for this device
+            r = requests.get('http://' + host, timeout=1.5)
+            # print(r.headers)
+            # print(r.headers['Product'])
+            if r.headers['Product'] == 'recording-light':
+                print("host {} is a recording light!".format(host))
+                device_ip.append(host)
+            # (hn, _, _) = socket.gethostbyaddr(host)
+            # print(hn)
+        except KeyError:
+            # happens when the returned headers don't have 'Product'
+            print("host {} is not a recording light.".format(host))
+        except (TimeoutError, ConnectionError, OSError):
+            pass
+        print("{:3d}".format(i), end='\r')
+    return device_ip
 
-get_hostnames_on_lan()
-
+# An enumeration of the states the light can be in
 class States(Enum):
     OFF = 0
     ARM = 1
@@ -37,16 +59,11 @@ LOGIC_MIDI_REC = 25  # Note Number 25 represents a track-recording message.
 # This is the MIDI port presented to Logic
 # MIDI_PORT = scm.MIDIDestination("Recording Light MIDI Input")
 
-# The IP address of the Recording Light web server.
-# Assign a static IP address through the router.
-REC_LIGHT_HN = 'recording-light'
-try:
-    REC_LIGHT_IP = socket.gethostbyname(REC_LIGHT_HN)
-except:
-    print("Error getting IP of recording light!")
-    REC_LIGHT_IP = "10.0.0.255"
-
-print(REC_LIGHT_IP)
+# Get the IP addresses of all recording lights on the LAN
+REC_LIGHT_IPS = get_recording_light_ips()
+if len(REC_LIGHT_IPS) == 0:
+    exit("No connected recording lights! Exiting...")
+print(REC_LIGHT_IPS)
 
 # The current recording state
 REC_STATE = States.OFF
@@ -81,7 +98,7 @@ def send_cmd(state):
         mode = "arm.html"
     elif (state == States.REC):
         mode = "rec.html"
-    r = requests.get('http://' + REC_LIGHT_IP + '/' + mode, timeout = 0.2)
+    r = requests.get('http://' + REC_LIGHT_IPS[0] + '/' + mode, timeout = 0.2)
 
 # log the message with timestamp and the value of state variables
 def log(message):
@@ -128,5 +145,14 @@ def log(message):
 #         log("Sending CMD")
 #         latch_timer_status = False
 #         send_cmd(REC_STATE)
-log("done")
-send_cmd(States.ARM)
+
+# log("done")
+import time
+s = States.REC
+while True:
+    if s == States.REC:
+        s = States.OFF
+    else:
+        s = States.REC
+    send_cmd(s)
+    time.sleep(1)

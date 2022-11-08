@@ -18,7 +18,7 @@ print("LAN network is", LOCAL_NETWORK)
 # Scan the LAN for hosts with port 80 open, and then send a GET request to them.
 # Search the returned headers for 'Product: recording-light'.
 # Return all matches in a list of IP addresses (as strings).
-def get_hostnames_on_lan():
+def get_recording_light_ips():
     device_ip = []
     for i, host in enumerate(LOCAL_NETWORK.hosts()):
         host = str(host)
@@ -28,21 +28,20 @@ def get_hostnames_on_lan():
             s.close()
             # Seems like this timeout needs to be pretty long for this device
             r = requests.get('http://' + host, timeout=1.5)
-            print(r.headers)
-            print(r.headers['Product'])
+            # print(r.headers)
+            # print(r.headers['Product'])
             if r.headers['Product'] == 'recording-light':
-                print("setting device ip var")
+                print("host {} is a recording light!".format(host))
                 device_ip.append(host)
-            # r.close()
-            (hn, _, _) = socket.gethostbyaddr(host)
-            print(hn)
+            # (hn, _, _) = socket.gethostbyaddr(host)
+            # print(hn)
         except KeyError:
             # happens when the returned headers don't have 'Product'
-            pass
+            print("host {} is not a recording light.".format(host))
         except (TimeoutError, ConnectionError, OSError):
             pass
         print("{:3d}".format(i), end='\r')
     return device_ip
 
-devices = get_hostnames_on_lan()
+devices = get_recording_light_ips()
 print("Recording light IP addresses are {}".format(devices))
