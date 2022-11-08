@@ -1,10 +1,28 @@
 #!/usr/local/bin/python3.8
 
-import simplecoremidi as scm
+# import simplecoremidi as scm
 import requests
+import socket
+import ipaddress as ipa
 import time
 from sys import stderr as logger
 from enum import Enum
+
+print("testing")
+LOCAL_HOSTNAME = socket.gethostbyname()
+print("hostname of THIS machine is", LOCAL_HOSTNAME)
+# Get the IP address of this machine, as well as the LAN
+LOCAL_IP = ipa.ip_address(socket.gethostbyname(LOCAL_HOSTNAME))
+LOCAL_NETWORK = ipa.ip_network(socket.gethostbyname(LOCAL_HOSTNAME), scrict=False)
+print("ip address of THIS machine is", LOCAL_IP)
+print("LAN network is", LOCAL_NETWORK)
+
+# Scan the LAN for hosts with port 80 open
+def get_hostnames_on_lan():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind("")
+
+get_hostnames_on_lan()
 
 class States(Enum):
     OFF = 0
@@ -17,11 +35,18 @@ LOGIC_MIDI_ARM = 24  # Note Number 24 represents a track-armed message.
 LOGIC_MIDI_REC = 25  # Note Number 25 represents a track-recording message.
 
 # This is the MIDI port presented to Logic
-MIDI_PORT = scm.MIDIDestination("Recording Light MIDI Input")
+# MIDI_PORT = scm.MIDIDestination("Recording Light MIDI Input")
 
 # The IP address of the Recording Light web server.
 # Assign a static IP address through the router.
-REC_LIGHT_IP = '10.0.1.110'
+REC_LIGHT_HN = 'recording-light'
+try:
+    REC_LIGHT_IP = socket.gethostbyname(REC_LIGHT_HN)
+except:
+    print("Error getting IP of recording light!")
+    REC_LIGHT_IP = "10.0.0.255"
+
+print(REC_LIGHT_IP)
 
 # The current recording state
 REC_STATE = States.OFF
@@ -65,41 +90,43 @@ def log(message):
     logger.write("    REC_STATE  : " + str(REC_STATE) + "\n")
     logger.write("\n")
 
-while True:
+# while True:
 
-    # look at the armed_timer, if we were in ARM and the armed_timer is expired, go to OFF
-    dt = time.time() - armed_timer
-    if ( (REC_STATE == States.ARM) and (dt > ARMED_PULSE_THRESH) ):
-        update_state(States.OFF)
-        log("Sending OFF state")
-        send_cmd(REC_STATE)
+#     # look at the armed_timer, if we were in ARM and the armed_timer is expired, go to OFF
+#     dt = time.time() - armed_timer
+#     if ( (REC_STATE == States.ARM) and (dt > ARMED_PULSE_THRESH) ):
+#         update_state(States.OFF)
+#         log("Sending OFF state")
+#         send_cmd(REC_STATE)
 
-    # now receive and process midi
-    midi_in = MIDI_PORT.recv()
-    if midi_in:
-        if (midi_in[0] == LOGIC_MIDI_CMD):
-            logger.write(str(midi_in) + "\n")
-            val = midi_in[2]
-            # if we get an ARM message, process it according to the current state
-            if ( (midi_in[1] == LOGIC_MIDI_ARM) and (REC_STATE == States.OFF) ):
-                if (val == 127):
-                    update_state(States.ARM)
-                    log("Setting ARM state")
-            elif ( (midi_in[1] == LOGIC_MIDI_ARM) and (REC_STATE == States.ARM) ):
-                armed_timer = time.time()
-            elif ( (midi_in[1] == LOGIC_MIDI_ARM) and (REC_STATE == States.REC) ):
-                if (val == 0):
-                    update_state(States.ARM)
-            # if we get a REC message, store or recall the previous state
-            # and send the new one to the light
-            elif ( (midi_in[1] == LOGIC_MIDI_REC) and (val == 127)):
-                update_state(States.REC)
-                log("Setting REC state")
-            elif ( (midi_in[1] == LOGIC_MIDI_REC) and (val == 0) ):
-                update_state(States.ARM)
-                log("Setting ARM state")
-    # if it's been LATCH_THRESH seconds since the last state update, send the command
-    if ( (latch_timer_status == True) and ((time.time() - latch_timer) > LATCH_THRESH) ):
-        log("Sending CMD")
-        latch_timer_status = False
-        send_cmd(REC_STATE)
+#     # now receive and process midi
+#     midi_in = MIDI_PORT.recv()
+#     if midi_in:
+#         if (midi_in[0] == LOGIC_MIDI_CMD):
+#             logger.write(str(midi_in) + "\n")
+#             val = midi_in[2]
+#             # if we get an ARM message, process it according to the current state
+#             if ( (midi_in[1] == LOGIC_MIDI_ARM) and (REC_STATE == States.OFF) ):
+#                 if (val == 127):
+#                     update_state(States.ARM)
+#                     log("Setting ARM state")
+#             elif ( (midi_in[1] == LOGIC_MIDI_ARM) and (REC_STATE == States.ARM) ):
+#                 armed_timer = time.time()
+#             elif ( (midi_in[1] == LOGIC_MIDI_ARM) and (REC_STATE == States.REC) ):
+#                 if (val == 0):
+#                     update_state(States.ARM)
+#             # if we get a REC message, store or recall the previous state
+#             # and send the new one to the light
+#             elif ( (midi_in[1] == LOGIC_MIDI_REC) and (val == 127)):
+#                 update_state(States.REC)
+#                 log("Setting REC state")
+#             elif ( (midi_in[1] == LOGIC_MIDI_REC) and (val == 0) ):
+#                 update_state(States.ARM)
+#                 log("Setting ARM state")
+#     # if it's been LATCH_THRESH seconds since the last state update, send the command
+#     if ( (latch_timer_status == True) and ((time.time() - latch_timer) > LATCH_THRESH) ):
+#         log("Sending CMD")
+#         latch_timer_status = False
+#         send_cmd(REC_STATE)
+log("done")
+send_cmd(States.ARM)
